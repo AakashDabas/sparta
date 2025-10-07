@@ -10,7 +10,7 @@
                 &kp X	&kp X	&kp X	&kp X	&kp X	&kp X	&kp A	&kp B	&kp C	&kp E	&kp F	&kp G
                 &kp X	&kp X	&kp X	&kp X	&kp X	&kp X	&kp M	&kp N	&kp O	&kp P	&kp Q	&kp R
                 &kp X	&kp X	&kp X	&kp X	&kp X	&kp X	&kp I	&kp J	&kp K	&kp L	&kp Y	&kp Z
-                &kp X	&kp X	&kp X	&kp KP_N1	&kp KP_N2	&kp KP_N3
+                &kp X	&kp X	&kp X	&kp X	&kp X	&kp X	&kp EXCL	&kp AT	&kp POUND	&kp PRCNT	&kp CARET	&kp AMPS
             >;
         };
     };
