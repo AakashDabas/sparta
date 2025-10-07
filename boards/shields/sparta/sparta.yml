@@ -1,0 +1,11 @@
+file_format: "1"
+id: sparta
+name: sparta
+type: shield
+url: https://github.com/AakashDabas/sparta
+requires: [seeeduino_xiao_ble]
+features:
+  - keys
+siblings:
+  - sparta_left
+  - sparta_right
