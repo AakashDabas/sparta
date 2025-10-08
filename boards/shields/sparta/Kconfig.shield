@@ -3,3 +3,6 @@ config SHIELD_SPARTA_LEFT
 
 config SHIELD_SPARTA_RIGHT
     def_bool $(shields_list_contains,sparta_right)
+
+config SHIELD_SPARTA_DONGLE
+    def_bool $(shields_list_contains,sparta_dongle)
