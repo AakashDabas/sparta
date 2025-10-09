@@ -28,7 +28,8 @@
 
     chosen {
         zmk,kscan = &mock_kscan;
-        zmk,physical-layout = &physical_layout0;  // New item added
+        zmk,physical-layout = &physical_layout0;
+        zephyr,display = &oled;
     };
 };
 
