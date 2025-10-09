@@ -1,6 +1,11 @@
 #include <behaviors.dtsi>
 #include <dt-bindings/zmk/keys.h>
 
+#define BASE 0
+#define NAV 1
+#define NUM 2
+#define FUNC 3
+
 / {
     keymap {
         compatible = "zmk,keymap";
@@ -13,5 +18,32 @@
                     &kp LSHIFT &kp SPACE  &kp LCTRL         &kp RETURN  &kp BACKSPACE &kp RALT
             >;
         };
+
+        NAV {
+                        bindings = <
+&none &none &none &none &none &none  &kp DOUBLE_QUOTES &kp SINGLE_QUOTE &none &kp PIPE &kp BACKSLASH &none
+&none &none &none &none &none &none  &none &kp LEFT &kp DOWN &kp UP &kp RIGHT &none
+&none &none &none &none &none &none  &kp INSERT &kp HOME &kp PAGE_DOWN &kp PAGE_UP &kp END &none
+&kp ESCAPE &kp SPACE  &kp LCTRL      &kp ESCAPE &kp BACKSPACE &kp DELETE
+                        >;
+                };
+
+                NUM_layer {
+                        bindings = <
+&none &kp EQUAL &kp N7 &kp N8 &kp N9 &none                 &kp LPAR &kp RPAR &kp LBRC &kp RBRC &none  &none
+&none &kp MINUS  &kp N4 &kp N5 &kp N6 &none                &kp LBKT &kp RBKT  &none &none &none &none
+&none &kp N0 &kp N1 &kp N2 &kp N3 &none                    &none &none &none &none &none &none
+&none &none &none &none &none &none
+                        >;
+                };
+
+                FUNC_layer {
+                        bindings = <
+&none &kp F12 &kp F7 &kp F8 &kp F9 &none         &kp TAB &none &none &none &none &none
+&none &kp F11 &kp F4 &kp F5 &kp F6 &none         &kp RGUI &none &none &none &none &none
+&none &kp F10 &kp F1 &kp F2 &kp F3 &none         &kp DELETE &none &none &none &none &none
+&none &none &none &none &none &none
+                        >;
+                };
     };
  };
