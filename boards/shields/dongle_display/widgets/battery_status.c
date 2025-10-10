@@ -77,7 +77,7 @@ static void set_battery_symbol(struct zmk_widget_peripheral_battery_status *widg
 
 void battery_status_update_cb(struct peripheral_battery_state state) {
     struct zmk_widget_peripheral_battery_status *widget;
-
+    LOG_INF("Battery update: source=%d level=%d", state.source, state.level);
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
         set_battery_symbol(widget, state);
     }
