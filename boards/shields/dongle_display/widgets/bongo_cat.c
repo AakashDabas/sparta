@@ -126,6 +126,7 @@ void bongo_cat_wpm_status_update_cb(struct bongo_cat_wpm_status_state state) {
     struct zmk_widget_bongo_cat *widget;
 
     char buf[16];
+    snprintf(buf, sizeof(buf), "%d", state.wpm); 
 
     SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
         set_animation(widget->obj, state);
@@ -144,7 +145,7 @@ int zmk_widget_bongo_cat_init(struct zmk_widget_bongo_cat *widget, lv_obj_t *par
     lv_obj_center(widget->obj);
 
     widget->label = lv_label_create(parent);
-    lv_obj_align(widget->label, LV_ALIGN_BOTTOM_MID, 0, -10);
+    lv_obj_align(widget->label, LV_ALIGN_BOTTOM_RIGHT, -20, -10);
 
     sys_slist_append(&widgets, &widget->node);
 
