@@ -56,8 +56,6 @@ endif
 
 if SHIELD_SPARTA_LEFT || SHIELD_SPARTA_RIGHT
 
-config ZMK_SPLIT_ROLE_PERIPHERAL
-    default y
 config ZMK_BATTERY_REPORTING
     default y
 
