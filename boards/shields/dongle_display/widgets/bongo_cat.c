@@ -119,23 +119,37 @@ static void set_animation(lv_obj_t *animing, struct bongo_cat_wpm_status_state s
 
 struct bongo_cat_wpm_status_state bongo_cat_wpm_status_get_state(const zmk_event_t *eh) {
     struct zmk_wpm_state_changed *ev = as_zmk_wpm_state_changed(eh);
-    return (struct bongo_cat_wpm_status_state) { .wpm = ev->state };
-};
+    return (struct bongo_cat_wpm_status_state){.wpm = ev->state};
+}
 
 static int64_t last_nonzero_wpm_ts = 0;
 static struct k_timer wpm_check_timer;
+static bool label_hidden = false;
+
+/* Runs in LVGL thread context */
+static void hide_labels_async(void *data) {
+    struct zmk_widget_bongo_cat *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        lv_obj_add_flag(widget->label, LV_OBJ_FLAG_HIDDEN);
+    }
+    label_hidden = true;
+}
+
+/* Runs in LVGL thread context */
+static void show_labels_async(void *data) {
+    struct zmk_widget_bongo_cat *widget;
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        lv_obj_clear_flag(widget->label, LV_OBJ_FLAG_HIDDEN);
+    }
+    label_hidden = false;
+}
 
 static void wpm_check_timer_handler(struct k_timer *timer) {
     int64_t now = k_uptime_get();
 
-    if ((now - last_nonzero_wpm_ts) >= 60000 && zmk_wpm_get_state() == 0) {
-        // Hide label asynchronously in LVGL context
-        lv_async_call((lv_async_cb_t)[](void *data) {
-            struct zmk_widget_bongo_cat *widget;
-            SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-                lv_obj_add_flag(widget->label, LV_OBJ_FLAG_HIDDEN);
-            }
-        }, NULL);
+    /* Hide if idle for 60s and not already hidden */
+    if (!label_hidden && (now - last_nonzero_wpm_ts) >= 60000 && zmk_wpm_get_state() == 0) {
+        lv_async_call(hide_labels_async, NULL);
     }
 }
 
@@ -148,10 +162,14 @@ void bongo_cat_wpm_status_update_cb(struct bongo_cat_wpm_status_state state) {
     if (state.wpm > 0) {
         last_nonzero_wpm_ts = k_uptime_get();
 
+        /* Show if hidden */
+        if (label_hidden) {
+            lv_async_call(show_labels_async, NULL);
+        }
+
         SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
             set_animation(widget->obj, state);
             lv_label_set_text(widget->label, buf);
-            lv_obj_clear_flag(widget->label, LV_OBJ_FLAG_HIDDEN); // ensure visible
         }
     } else {
         SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
@@ -160,7 +178,6 @@ void bongo_cat_wpm_status_update_cb(struct bongo_cat_wpm_status_state state) {
         }
     }
 }
-
 
 ZMK_DISPLAY_WIDGET_LISTENER(widget_bongo_cat, struct bongo_cat_wpm_status_state,
                             bongo_cat_wpm_status_update_cb, bongo_cat_wpm_status_get_state)
@@ -178,7 +195,7 @@ int zmk_widget_bongo_cat_init(struct zmk_widget_bongo_cat *widget, lv_obj_t *par
 
     widget_bongo_cat_init();
 
-    // Initialize and start periodic check timer
+    /* Start a periodic timer to check every second */
     k_timer_init(&wpm_check_timer, wpm_check_timer_handler, NULL);
     k_timer_start(&wpm_check_timer, K_SECONDS(1), K_SECONDS(1));
 
