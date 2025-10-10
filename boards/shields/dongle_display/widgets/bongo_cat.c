@@ -145,7 +145,7 @@ int zmk_widget_bongo_cat_init(struct zmk_widget_bongo_cat *widget, lv_obj_t *par
     lv_obj_center(widget->obj);
 
     widget->label = lv_label_create(parent);
-    lv_obj_align(widget->label, LV_ALIGN_BOTTOM_RIGHT, -20, -10);
+    lv_obj_align(widget->label, LV_ALIGN_BOTTOM_RIGHT, -10, -10);
 
     sys_slist_append(&widgets, &widget->node);
 
