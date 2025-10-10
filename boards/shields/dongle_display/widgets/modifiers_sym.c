@@ -177,7 +177,7 @@ const lv_img_dsc_t cmd_icon = {
   .header.w = 14,
   .header.h = 14,
   .data_size = 36,
-  .data = cmd_map,
+  .data = win_map,
 };
 
 #ifndef LV_ATTRIBUTE_IMG_OPT
