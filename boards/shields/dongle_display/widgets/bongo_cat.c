@@ -122,43 +122,15 @@ struct bongo_cat_wpm_status_state bongo_cat_wpm_status_get_state(const zmk_event
     return (struct bongo_cat_wpm_status_state) { .wpm = ev->state };
 };
 
-static int64_t last_nonzero_wpm_ts = 0;
-static struct k_timer wpm_hide_timer;
-
-static void wpm_hide_timer_handler(struct k_timer *timer) {
-    int64_t now = k_uptime_get();
-    // If it's been 60 seconds since last non-zero WPM, and WPM is still 0
-    if ((now - last_nonzero_wpm_ts) >= 60000 && zmk_wpm_get_state() == 0) {
-        struct zmk_widget_bongo_cat *widget;
-        SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-            lv_obj_add_flag(widget->label, LV_OBJ_FLAG_HIDDEN); // hide
-        }
-    }
-}
-
 void bongo_cat_wpm_status_update_cb(struct bongo_cat_wpm_status_state state) {
     struct zmk_widget_bongo_cat *widget;
 
     char buf[16];
-    snprintf(buf, sizeof(buf), "WPM: %d", state.wpm);
+    snprintf(buf, sizeof(buf), "%d", state.wpm); 
 
-    if (state.wpm > 0) {
-        last_nonzero_wpm_ts = k_uptime_get();
-
-        SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-            set_animation(widget->obj, state);
-            lv_label_set_text(widget->label, buf);
-            lv_obj_clear_flag(widget->label, LV_OBJ_FLAG_HIDDEN); // show if hidden
-        }
-
-        k_timer_stop(&wpm_hide_timer); // stop any pending hide
-    } else {
-        SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-            set_animation(widget->obj, state);
-            lv_label_set_text(widget->label, buf);
-        }
-
-        k_timer_start(&wpm_hide_timer, K_SECONDS(60), K_NO_WAIT); // start 1-minute hide timer
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        set_animation(widget->obj, state);
+        lv_label_set_text(widget->label, buf);
     }
 }
 
@@ -173,13 +145,11 @@ int zmk_widget_bongo_cat_init(struct zmk_widget_bongo_cat *widget, lv_obj_t *par
     lv_obj_center(widget->obj);
 
     widget->label = lv_label_create(parent);
-    lv_obj_align(widget->label, LV_ALIGN_BOTTOM_RIGHT, -35, -2);
+    lv_obj_align(widget->label, LV_ALIGN_BOTTOM_RIGHT, -40, -5);
 
     sys_slist_append(&widgets, &widget->node);
 
     widget_bongo_cat_init();
-
-    k_timer_init(&wpm_hide_timer, wpm_hide_timer_handler, NULL);
 
     return 0;
 }
