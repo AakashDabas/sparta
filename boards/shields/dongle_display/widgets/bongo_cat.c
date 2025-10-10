@@ -124,11 +124,15 @@ struct bongo_cat_wpm_status_state bongo_cat_wpm_status_get_state(const zmk_event
 
 void bongo_cat_wpm_status_update_cb(struct bongo_cat_wpm_status_state state) {
     struct zmk_widget_bongo_cat *widget;
-    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) { set_animation(widget->obj, state); }
 
     char buf[16];
-    lv_label_set_text(widget->label, buf);
+
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        set_animation(widget->obj, state);
+        lv_label_set_text(widget->label, buf);
+    }
 }
+
 
 ZMK_DISPLAY_WIDGET_LISTENER(widget_bongo_cat, struct bongo_cat_wpm_status_state,
                             bongo_cat_wpm_status_update_cb, bongo_cat_wpm_status_get_state)
