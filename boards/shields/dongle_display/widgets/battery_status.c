@@ -54,13 +54,18 @@ static void draw_battery(lv_obj_t *canvas, uint8_t level) {
     }
 }
 
-static void set_battery_symbol(lv_obj_t *widget, struct peripheral_battery_state state) {
-    lv_obj_t *symbol = lv_obj_get_child(widget, state.source * 2);
-    lv_obj_t *label = lv_obj_get_child(widget, state.source * 2 + 1);
+static void set_battery_symbol(struct zmk_widget_peripheral_battery_status *widget,
+                               struct peripheral_battery_state state) {
+    if (state.source >= ZMK_SPLIT_BLE_PERIPHERAL_COUNT) {
+        return; // Avoid invalid access
+    }
+
+    lv_obj_t *symbol = widget->canvas[state.source];
+    lv_obj_t *label = widget->label[state.source];
 
     draw_battery(symbol, state.level);
     lv_label_set_text_fmt(label, "%3u%%", state.level);
-    
+
     if (state.level > 0) {
         lv_obj_clear_flag(symbol, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(label, LV_OBJ_FLAG_HIDDEN);
@@ -71,8 +76,11 @@ static void set_battery_symbol(lv_obj_t *widget, struct peripheral_battery_state
 }
 
 void battery_status_update_cb(struct peripheral_battery_state state) {
-    struct zmk_widget_battery_status *widget;
-    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) { set_battery_symbol(widget->obj, state); }
+    struct zmk_widget_peripheral_battery_status *widget;
+
+    SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+        set_battery_symbol(widget, state);
+    }
 }
 
 static struct peripheral_battery_state battery_status_get_state(const zmk_event_t *eh) {
@@ -90,7 +98,6 @@ ZMK_SUBSCRIPTION(widget_battery_status, zmk_peripheral_battery_state_changed);
 
 int zmk_widget_peripheral_battery_status_init(struct zmk_widget_peripheral_battery_status *widget, lv_obj_t *parent) {
     widget->obj = lv_obj_create(parent);
-
     lv_obj_set_size(widget->obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
     for (int i = 0; i < ZMK_SPLIT_BLE_PERIPHERAL_COUNT; i++) {
@@ -99,12 +106,16 @@ int zmk_widget_peripheral_battery_status_init(struct zmk_widget_peripheral_batte
 
         lv_canvas_set_buffer(image_canvas, battery_image_buffer[i], 5, 8, LV_IMG_CF_TRUE_COLOR);
 
-        lv_obj_align(image_canvas, LV_ALIGN_TOP_RIGHT, 0, i * 10);
-        lv_obj_align(battery_label, LV_ALIGN_TOP_RIGHT, -7, i * 10);
+        // Position each canvas and label vertically with spacing
+        lv_obj_align(image_canvas, LV_ALIGN_TOP_RIGHT, 0, i * 12);
+        lv_obj_align(battery_label, LV_ALIGN_TOP_RIGHT, -7, i * 12);
+
+        // Store pointers for reliable access later
+        widget->canvas[i] = image_canvas;
+        widget->label[i] = battery_label;
     }
 
     sys_slist_append(&widgets, &widget->node);
-
     widget_battery_status_init();
 
     return 0;
