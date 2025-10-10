@@ -140,7 +140,7 @@ void bongo_cat_wpm_status_update_cb(struct bongo_cat_wpm_status_state state) {
     struct zmk_widget_bongo_cat *widget;
 
     char buf[16];
-    snprintf(buf, sizeof(buf), "WPM: %d", state.wpm);
+    snprintf(buf, sizeof(buf), "%d", state.wpm);
 
     if (state.wpm > 0) {
         last_nonzero_wpm_ts = k_uptime_get();
