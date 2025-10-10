@@ -27,7 +27,7 @@ struct peripheral_battery_state {
     uint8_t level;
 };
     
-static lv_color_t battery_image_buffer[ZMK_SPLIT_BLE_PERIPHERAL_COUNT][5 * 8];
+static lv_color_t battery_image_buffer[2][5 * 8];
 
 static void draw_battery(lv_obj_t *canvas, uint8_t level) {
     lv_canvas_fill_bg(canvas, lv_color_black(), LV_OPA_COVER);
@@ -56,7 +56,7 @@ static void draw_battery(lv_obj_t *canvas, uint8_t level) {
 
 static void set_battery_symbol(struct zmk_widget_peripheral_battery_status *widget,
                                struct peripheral_battery_state state) {
-    if (state.source >= ZMK_SPLIT_BLE_PERIPHERAL_COUNT) {
+    if (state.source >= 2) {
         return; // Avoid invalid access
     }
 
@@ -100,7 +100,7 @@ int zmk_widget_peripheral_battery_status_init(struct zmk_widget_peripheral_batte
     widget->obj = lv_obj_create(parent);
     lv_obj_set_size(widget->obj, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
 
-    for (int i = 0; i < ZMK_SPLIT_BLE_PERIPHERAL_COUNT; i++) {
+    for (int i = 0; i < 2; i++) {
         lv_obj_t *image_canvas = lv_canvas_create(widget->obj);
         lv_obj_t *battery_label = lv_label_create(widget->obj);
 
