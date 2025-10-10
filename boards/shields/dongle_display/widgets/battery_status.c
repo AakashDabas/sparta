@@ -66,13 +66,13 @@ static void set_battery_symbol(struct zmk_widget_peripheral_battery_status *widg
     draw_battery(symbol, state.level);
     lv_label_set_text_fmt(label, "%3u%%", state.level);
 
-    if (state.level > 0) {
+    // if (state.level > 0) {
         lv_obj_clear_flag(symbol, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_flag(label, LV_OBJ_FLAG_HIDDEN);
-    } else {
-        lv_obj_add_flag(symbol, LV_OBJ_FLAG_HIDDEN);
-        lv_obj_add_flag(label, LV_OBJ_FLAG_HIDDEN);
-    }
+    // } else {
+    //     lv_obj_add_flag(symbol, LV_OBJ_FLAG_HIDDEN);
+    //     lv_obj_add_flag(label, LV_OBJ_FLAG_HIDDEN);
+    // }
 }
 
 void battery_status_update_cb(struct peripheral_battery_state state) {
