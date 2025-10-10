@@ -123,16 +123,19 @@ struct bongo_cat_wpm_status_state bongo_cat_wpm_status_get_state(const zmk_event
 };
 
 static int64_t last_nonzero_wpm_ts = 0;
-static struct k_timer wpm_hide_timer;
+static struct k_timer wpm_check_timer;
 
-static void wpm_hide_timer_handler(struct k_timer *timer) {
+static void wpm_check_timer_handler(struct k_timer *timer) {
     int64_t now = k_uptime_get();
-    // If it's been 60 seconds since last non-zero WPM, and WPM is still 0
+
     if ((now - last_nonzero_wpm_ts) >= 60000 && zmk_wpm_get_state() == 0) {
-        struct zmk_widget_bongo_cat *widget;
-        SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
-            lv_obj_add_flag(widget->label, LV_OBJ_FLAG_HIDDEN); // hide
-        }
+        // Hide label asynchronously in LVGL context
+        lv_async_call((lv_async_cb_t)[](void *data) {
+            struct zmk_widget_bongo_cat *widget;
+            SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
+                lv_obj_add_flag(widget->label, LV_OBJ_FLAG_HIDDEN);
+            }
+        }, NULL);
     }
 }
 
@@ -148,17 +151,13 @@ void bongo_cat_wpm_status_update_cb(struct bongo_cat_wpm_status_state state) {
         SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
             set_animation(widget->obj, state);
             lv_label_set_text(widget->label, buf);
-            lv_obj_clear_flag(widget->label, LV_OBJ_FLAG_HIDDEN); // show if hidden
+            lv_obj_clear_flag(widget->label, LV_OBJ_FLAG_HIDDEN); // ensure visible
         }
-
-        k_timer_stop(&wpm_hide_timer); // stop any pending hide
     } else {
         SYS_SLIST_FOR_EACH_CONTAINER(&widgets, widget, node) {
             set_animation(widget->obj, state);
             lv_label_set_text(widget->label, buf);
         }
-
-        k_timer_start(&wpm_hide_timer, K_SECONDS(60), K_NO_WAIT); // start 1-minute hide timer
     }
 }
 
@@ -179,7 +178,9 @@ int zmk_widget_bongo_cat_init(struct zmk_widget_bongo_cat *widget, lv_obj_t *par
 
     widget_bongo_cat_init();
 
-    k_timer_init(&wpm_hide_timer, wpm_hide_timer_handler, NULL);
+    // Initialize and start periodic check timer
+    k_timer_init(&wpm_check_timer, wpm_check_timer_handler, NULL);
+    k_timer_start(&wpm_check_timer, K_SECONDS(1), K_SECONDS(1));
 
     return 0;
 }
