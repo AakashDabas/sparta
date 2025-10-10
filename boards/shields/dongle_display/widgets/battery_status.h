@@ -13,8 +13,8 @@ struct zmk_widget_peripheral_battery_status {
     sys_snode_t node;
     lv_obj_t *obj;
 
-    lv_obj_t *canvas[ZMK_SPLIT_BLE_PERIPHERAL_COUNT];
-    lv_obj_t *label[ZMK_SPLIT_BLE_PERIPHERAL_COUNT];
+    lv_obj_t *canvas[2];
+    lv_obj_t *label[2];
 };
 
 int zmk_widget_peripheral_battery_status_init(struct zmk_widget_peripheral_battery_status *widget, lv_obj_t *parent);
