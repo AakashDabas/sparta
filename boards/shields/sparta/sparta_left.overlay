@@ -4,6 +4,8 @@
     col-offset = <6>;
 };
 
-&chosen {
-    zmk,kscan = &kscan0;
+/ {
+    chosen {
+        zmk,kscan = &kscan0;
+    };
 };
