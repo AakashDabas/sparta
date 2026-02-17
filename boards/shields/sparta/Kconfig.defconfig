@@ -1,24 +1,32 @@
-if SHIELD_SPARTA_DONGLE
+if SHIELD_SPARTA_LEFT
 
 config ZMK_KEYBOARD_NAME
-    default "Sparta Dongle"
+    default "Sparta"
 
 config ZMK_SPLIT_ROLE_CENTRAL
     default y
 
 config ZMK_SPLIT_BLE_CENTRAL_PERIPHERALS
-    default 2
+    default 1
 
 config BT_MAX_CONN
-    default 6
+    default 5
 
 config BT_MAX_PAIRED
-    default 6
+    default 5
+
 endif
 
-if SHIELD_SPARTA_LEFT || SHIELD_SPARTA_RIGHT || SHIELD_SPARTA_DONGLE
+if SHIELD_SPARTA_LEFT || SHIELD_SPARTA_RIGHT
 
 config ZMK_SPLIT
+    default y
+
+endif
+
+if SHIELD_SPARTA_RIGHT
+
+config ZMK_BATTERY_REPORTING
     default y
 
 endif
